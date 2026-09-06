@@ -1,5 +1,5 @@
 #ifndef SNAPSHOTITERATOR_H
-#define NAPSHOTITERATOR_H
+#define SNAPSHOTITERATOR_H
 
 #include "../shared/Iterator.h"
 
