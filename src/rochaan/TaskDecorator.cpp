@@ -8,7 +8,7 @@ TaskDecorator::~TaskDecorator() {
 
 void TaskDecorator::add(WorkComponent* child) { wrapped->add(child); }
 void TaskDecorator::remove(WorkComponent* child) { wrapped->remove(child); }
-WorkComponent* TaskDecorator::getChild(int index) const { return wrapped->getChild(index); }
+WorkComponent* TaskDecorator::getChild(std::size_t index) const { return wrapped->getChild(index); }
 
 void TaskDecorator::execute() { wrapped->execute(); }
 std::string TaskDecorator::getName() const { return wrapped->getName(); }

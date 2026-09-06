@@ -10,7 +10,7 @@ public:
 
     void add(WorkComponent* child) override;
     void remove(WorkComponent* child) override;
-    WorkComponent* getChild(int index) const override;
+    WorkComponent* getChild(std::size_t index) const override;
 
     void execute() override;
     std::string getName() const override;
