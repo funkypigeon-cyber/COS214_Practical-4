@@ -19,6 +19,17 @@ public:
     // no-op/throw implementation; only composites need real behaviour.
     virtual void add(WorkComponent* child) { (void)child; }
     virtual void remove(WorkComponent* child) { (void)child; }
+
+    virtual WorkComponent* getChild(std::size_t index) const
+    {
+        (void)index;
+        return nullptr;
+    }
+
+    virtual std::size_t getChildCount() const { return 0; }
+
+    //Task will later ask its current TaskState for this information.
+    virtual bool isPendingInspection() const { return false; }
 };
 
 #endif
