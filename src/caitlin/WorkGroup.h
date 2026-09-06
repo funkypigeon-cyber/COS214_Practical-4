@@ -1,5 +1,5 @@
-#ifndef TASKFORGE_WORKGROUP_H
-#define TASKFORGE_WORKGROUP_H
+#ifndef WORKGROUP_H
+#define WORKGROUP_H
 
 #include "../shared/Iterator.h"
 #include "../shared/WorkComponent.h"
