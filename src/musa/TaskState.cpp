@@ -13,7 +13,9 @@ TaskState* TaskState::invalid(Task* task, const std::string& action) const {
     return nullptr; // stay in the current state
 }
 
-TaskState* TaskState::start(Task* task)               { return invalid(task, "start"); }
+TaskState* TaskState::start(Task* task) { 
+    return invalid(task, "start"); 
+}
 TaskState* TaskState::submitForInspection(Task* task) { return invalid(task, "submit for inspection"); }
 TaskState* TaskState::approve(Task* task)             { return invalid(task, "approve"); }
 TaskState* TaskState::reject(Task* task)              { return invalid(task, "reject"); }
