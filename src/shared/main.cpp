@@ -49,7 +49,8 @@ int main() {
 
     framing->add(new Task("Build Ground Floor Frame", 6));
 
-    services->add(new Task("Install Main Distribution Board", 2));
+    Task* distributionBoard = new Task("Install Main Distribution Board", 2);
+    services->add(distributionBoard);
     services->add(new Task("Install Water Lines", 3));
 
     structuralWork->add(foundation);
@@ -109,7 +110,55 @@ int main() {
         *inspectionIterator
     );
 
-    // TODO: run a Task through its lifecycle (Musa)
+    // ==================== STATE ====================
+    std::cout << std::endl;
+    std::cout << "Running 'Install Main Distribution Board' through its lifecycle:"
+              << std::endl;
+
+    distributionBoard->report();
+
+    std::cout << std::endl
+              << "Attempting to approve before work has started (invalid):"
+              << std::endl;
+    distributionBoard->approve();
+    distributionBoard->report();
+
+    std::cout << std::endl << "Starting the task:" << std::endl;
+    distributionBoard->start();
+    distributionBoard->report();
+
+    std::cout << std::endl << "Submitting for inspection:" << std::endl;
+    distributionBoard->submitForInspection();
+    distributionBoard->report();
+
+    std::unique_ptr<Iterator> pendingAfterSubmit =
+        project.createPendingInspectionIterator();
+
+    printTraversal(
+        "Pending-inspection iterator, re-created after the state change:",
+        *pendingAfterSubmit
+    );
+
+    std::cout << std::endl
+              << "Inspection fails; task is sent for rework:" << std::endl;
+    distributionBoard->reject();
+    distributionBoard->report();
+
+    std::cout << std::endl << "Rework complete, back in progress:" << std::endl;
+    distributionBoard->resume();
+    distributionBoard->report();
+
+    std::cout << std::endl << "Resubmitted and approved:" << std::endl;
+    distributionBoard->submitForInspection();
+    distributionBoard->approve();
+    distributionBoard->report();
+
+    std::cout << std::endl
+              << "Attempting to restart an approved (terminal) task (invalid):"
+              << std::endl;
+    distributionBoard->start();
+    distributionBoard->report();
+
     // TODO: wrap a Task in one or more decorators (Rochaan)
 
     return 0;

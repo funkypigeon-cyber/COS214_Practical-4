@@ -9,6 +9,6 @@ ReworkRequiredState& ReworkRequiredState::getInstance() {
 }
 
 TaskState* ReworkRequiredState::resume(Task* task) {
-    std::cout << "Task \"" << task->getName() << "\" reworked — back in progress." << std::endl;
+    std::cout << "Task \"" << task->getName() << "\" reworked - back in progress." << std::endl;
     return &InProgressState::getInstance();
 }

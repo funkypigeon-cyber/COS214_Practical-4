@@ -15,6 +15,6 @@ TaskState* PendingInspectionState::approve(Task* task) {
 }
 
 TaskState* PendingInspectionState::reject(Task* task) {
-    std::cout << "Task \"" << task->getName() << "\" failed inspection — rework required." << std::endl;
+    std::cout << "Task \"" << task->getName() << "\" failed inspection - rework required." << std::endl;
     return &ReworkRequiredState::getInstance();
 }

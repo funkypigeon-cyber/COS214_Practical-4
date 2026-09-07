@@ -1,12 +1,12 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -pedantic
+CXXFLAGS = -std=c++11 -Wall -Wextra -pedantic -g
 INCLUDES = -Isrc/shared -Isrc/caitlin -Isrc/musa -Isrc/rochaan
 
 TARGET = taskforge
 
 SOURCES = src/shared/main.cpp \
           $(wildcard src/caitlin/*.cpp) \
-          $(wildcard src/musa/*.cpp) \
+          $(filter-out src/musa/main_test.cpp, $(wildcard src/musa/*.cpp)) \
           $(wildcard src/rochaan/*.cpp)
 
 OBJECTS = $(SOURCES:.cpp=.o)
