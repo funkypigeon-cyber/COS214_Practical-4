@@ -1,33 +1,33 @@
-Put the design write-up here: domain description, ownership rationale,
-traversal-modification policy, GDB/Valgrind investigation notes, and
-team contribution statement (everything that goes into the submission PDF).
+## Design Ownership and Rationale
 
-# Composite + Iterator design
-## GoF participant mapping
+### Recursive Hierarchy
 
-Component -WorkComponent 
-Composite - WorkGroup
-Concrete composites - Project, Phase
-Leaf - Task
-Iterator - Iterator
-Iterator support -SnapshotIterator
-Concrete iterators - DepthFirstIterator, PendingInspectionIterator
+`Project` and `Phase` reuse `WorkGroup`'s child-management behaviour. Because every child is a `WorkComponent`, groups can contain tasks as well as nested groups, giving TaskForge a genuine recursive part-whole structure without client-side type checks.
 
-## How the classes connect
-`Project`, `Phase`, and `Task` all implement `WorkComponent`, so client code can store and process every construction item through the same interface. A `WorkGroup` owns zero or more `WorkComponent` children. `Project` and `Phase` reuse that ownership and child-management implementation, while `Task` remains a leaf whose inherited child operations do nothing.
+### Ownership and Destruction
 
-`WorkGroup` creates either concrete Iterator through the shared `Iterator` interface. `SnapshotIterator` stores the common snapshot vector and cursor. `DepthFirstIterator` recursively includes every Component in pre-order, whereas `PendingInspectionIterator` visits the hierarchy but includes only Components whose `isPendingInspection()` result is true.
+`WorkGroup` owns its children through `std::unique_ptr<WorkComponent>`. Destruction of the root therefore destroys the hierarchy recursively through the virtual `WorkComponent` destructor. `transferChild()` moves an existing `unique_ptr` directly between groups so that a work item is never simultaneously owned by two parents.
 
-## Ownership and movement
-Calling `WorkGroup::add()` transfers ownership of an unowned pointer to that group. Children are stored as `std::unique_ptr<WorkComponent>`, so deleting the root Project recursively destroys the complete hierarchy through the virtual `WorkComponent` destructor.
+### Traversal Encapsulation
 
-`remove()` detaches a child without destroying it; the caller then owns the raw pointer.
-`transferChild()` is safer for ordinary moves because it moves the internal `unique_ptr` directly from one group to another.
+Client code receives an `Iterator` and calls `hasNext()` and `next()`; it never obtains the group's internal `std::vector`. `DepthFirstIterator` visits the complete hierarchy in pre-order. `PendingInspectionIterator` applies the meaningful selection rule supplied by `WorkComponent::isPendingInspection()`.
 
-## Traversal-modification policy
-Each Iterator captures its own traversal sequence and position at construction time. Therefore:
+### Snapshot Lifetime Rule
 
-- two Iterators over the same Project advance independently;
-- adding or moving a node does not reorder an Iterator already in progress;
-- a new Iterator sees the modified hierarchy; and
-- a detached node must not be destroyed while an older snapshot could still reference it.
+`SnapshotIterator` stores non-owning `WorkComponent*` pointers. The owning hierarchy must therefore outlive all active iterators, and a detached node must not be destroyed while an older snapshot could still refer to it.
+
+### State Lifecycle
+
+`Task` delegates lifecycle actions to its current `TaskState`. The concrete states control valid transitions, while invalid actions leave the task unchanged. Singleton state objects are shared safely between tasks.
+
+### Decorator Extension
+
+`TaskDecorator` wraps a `WorkComponent` and delegates its normal behaviour. Concrete decorators dynamically add safety auditing, weather delays, cost overruns or priority boosts without changing the original task class.
+
+### Traversal-Modification Policy
+
+Each iterator stores a snapshot of non-owning `WorkComponent*` pointers when it is created. Changes to the hierarchy do not affect an active iterator; a new iterator must be created to view the updated structure. Nodes may not be deleted while an older iterator could still reference them.
+
+### Other Important Design Decisions
+
+`WorkGroup` owns its children using `std::unique_ptr`, while `transferChild()` safely moves ownership between groups. `canAccept()` prevents null children, self-containment and recursive cycles. Task states are shared Singleton objects, and decorators may be stacked to add behaviour without modifying `Task`.
